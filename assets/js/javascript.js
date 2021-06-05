@@ -22,7 +22,7 @@ const searchForLocation = async (cityName) => {
         return res.json();
     }).then (data => {
         console.log(data.current.uvi);
-        unIndex = data.current.uvi;
+        uvIndex = data.current.uvi;
     }).catch(err => {
         console.log(`There was an error fetching data [${err.message}]`);
         throw new Error(err.message);
