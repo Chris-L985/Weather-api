@@ -27,6 +27,13 @@ const searchForLocation = async (cityName) => {
         console.log(`There was an error fetching data [${err.message}]`);
         throw new Error(err.message);
     });
+
+    let weatherContainer = document.querySelector('#city-weather-container');
+    weatherContainer.innerHTML = '';
+
+    let weatherEl = document.querySelector('#city-weather');
+    weatherContainer.appendChild(weatherEl);
+
 };
 
 const searchButton = document.getElementById("forecast-search-button");
