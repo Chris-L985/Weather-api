@@ -48,11 +48,11 @@ const renderGeneralCityInfo = (forecastData, oneCallData) => {
   const formattedDate = `${dateMonth}/${dateDay}/${dateYear}`;
   const kelvinToFarenheit = (((temp - 273.15) * (9 / 5)) + 32);
   const getUviClass = (uvIndex) => {
-    if (uvIndex <= 2) return "low";
-    if (uvIndex <= 5) return "moderate";
-    if (uvIndex <= 7) return "high";
-    if (uvIndex <= 10) return "very high";
-    if (uvIndex <= 11) return "extreme";
+    if (uvIndex < 2) return "low";
+    if (uvIndex < 5) return "moderate";
+    if (uvIndex < 7) return "high";
+    if (uvIndex < 10) return "very-high";
+    if (uvIndex > 10) return "extreme";
 
   };
 
