@@ -1,43 +1,80 @@
 const weatherApiKey = "e9170727208e717e9feb77d4d1715905";
 
 const searchForLocation = async (cityName) => {
-    let forecastData;
-    let uvIndex;
-    let forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${weatherApiKey}`;
+  let forecastData;
+  let oneCallData;
+  let forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${weatherApiKey}`;
 
-    await fetch(forecastApiUrl).then(res => {
-        return res.json();
-    }).then(data => {
-        console.log(data);
-        forecastData = data;
-    }).catch(err => {
-        console.log(`There was an error fething data [${err.message}]`);
-        throw new Error(err.message);
+  await fetch(forecastApiUrl)
+    .then((res) => {
+      return res.json();
+    })
+    .then((data) => {
+      console.log(data);
+      forecastData = data;
+    })
+    .catch((err) => {
+      console.log(`There was an error fething data [${err.message}]`);
+      throw new Error(err.message);
     });
 
-    const { lat, lon } = forecastData.city.coord;
-    const oneCallApiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${weatherApiKey}`;
+  const { lat, lon } = forecastData.city.coord;
+  const oneCallApiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${weatherApiKey}`;
 
-    await fetch(oneCallApiUrl).then(res => {
-        return res.json();
-    }).then (data => {
-        console.log(data.current.uvi);
-        uvIndex = data.current.uvi;
-    }).catch(err => {
-        console.log(`There was an error fetching data [${err.message}]`);
-        throw new Error(err.message);
+  await fetch(oneCallApiUrl)
+    .then((res) => {
+      return res.json();
+    })
+    .then((data) => {
+      console.log(data.current);
+      oneCallData = data.current;
+    })
+    .catch((err) => {
+      console.log(`There was an error fetching data [${err.message}]`);
+      throw new Error(err.message);
     });
 
-    let weatherContainer = document.querySelector('#city-weather-container');
-    weatherContainer.innerHTML = '';
-
-    let weatherEl = document.querySelector('#city-weather');
-    weatherContainer.appendChild(weatherEl);
-
+    renderGeneralCityInfo(forecastData, oneCallData);
 };
 
-const searchButton = document.getElementById("forecast-search-button");
-searchButton.addEventListener('click', () =>  {
-    const searchInputValue = document.getElementById("search-input").value || "";
-    searchForLocation(searchInputValue);
+const renderGeneralCityInfo = (forecastData, oneCallData) => {
+  const { city } = forecastData;
+  const { temp, wind_speed, humidity, uvi, weather } = oneCallData;
+
+  const date = new Date();
+  const dateDay = date.getDate();
+  const dateMonth = date.getMonth();
+  const dateYear = date.getFullYear();
+  const formattedDate = `${dateMonth}/${dateDay}/${dateYear}`;
+  const kelvinToFarenheit = (((temp - 273.15) * (9 / 5)) + 32);
+  const getUviClass = (uvIndex) => {
+    if (uvIndex <= 2) return "low";
+    if (uvIndex <= 5) return "moderate";
+    if (uvIndex <= 7) return "high";
+    if (uvIndex <= 10) return "very high";
+    if (uvIndex <= 11) return "extreme";
+
+  };
+
+  const renderedCityName = `${city.name} (${formattedDate})`;
+  const renderedTemperature = `Temp: ${Math.round(kelvinToFarenheit)}°F`;
+  const renderedWindsSpeed = `Wind: ${wind_speed} MPH`;
+  const renderedHumidity = `Humidity: ${humidity} % `;
+  const renderedUvIndex = `UV Index: <span class=" uvi-pill ${getUviClass(uvi)}">${uvi}</span>`
+
+  const generalCityWeatherInfo = (`
+    <h2>${renderedCityName}</h2>
+    <h5>${renderedTemperature}</h5>
+    <h5>${renderedWindsSpeed}</h5>
+    <h5>${renderedHumidity}</h5>
+    <h5>${renderedUvIndex}</h5>
+  `);
+
+  $('#general-city-weather-info').empty().html(generalCityWeatherInfo);
+};
+
+const searchButton = $('#forecast-search-button');
+searchButton.on('click', () => {
+  const searchInputValue = $('#search-input').val() || '';
+  searchForLocation(searchInputValue);
 });
