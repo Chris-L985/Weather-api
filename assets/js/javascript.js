@@ -29,8 +29,8 @@ const searchForLocation = async (cityName) => {
       return res.json();
     })
     .then((data) => {
-      console.log(data.current);
-      oneCallData = data.current;
+      console.log(data);
+      oneCallData = data;
     })
     .catch((err) => {
       console.log(`There was an error fetching data [${err.message}]`);
@@ -38,17 +38,18 @@ const searchForLocation = async (cityName) => {
     });
 
     renderGeneralCityInfo(forecastData, oneCallData);
+    render5DayForecast(oneCallData);
 };
 
-// variable to display array data on the page
+// variable to display array data on the pages
 const renderGeneralCityInfo = (forecastData, oneCallData) => {
   const { city } = forecastData;
-  const { temp, wind_speed, humidity, uvi } = oneCallData;
+  const { temp, wind_speed, humidity, uvi } = oneCallData.current;
 
   // code to retrieve the current date
   const date = new Date();
   const dateDay = date.getDate();
-  const dateMonth = date.getMonth();
+  const dateMonth = date.getMonth() + 1;
   const dateYear = date.getFullYear();
   const formattedDate = `${dateMonth}/${dateDay}/${dateYear}`;
   const kelvinToFarenheit = (((temp - 273.15) * (9 / 5)) + 32);
@@ -81,7 +82,43 @@ const renderGeneralCityInfo = (forecastData, oneCallData) => {
   $('#general-city-weather-info').empty().html(generalCityWeatherInfo);
 };
 
+const render5DayForecast = (oneCallData) => {
+    const { daily } = oneCallData;
+
+    const renderedForecastData = daily.map(( item, i) => {
+        const { temp , wind_speed , humidity , dt } = item;
+
+        const date = new Date(dt * 1000);
+        const dateDay = date.getDate();
+        const dateMonth = date.getMonth() + 1;
+        const dateYear = date.getFullYear();
+        const formattedDate = `${dateMonth}/${dateDay}/${dateYear}`;
+        const kelvinToFarenheit = (((temp.day - 273.15) * (9 / 5)) + 32);
+
+        const renderedTemperature = `Temp: ${Math.round(kelvinToFarenheit)}°F`;
+        const renderedWindsSpeed = `Wind: ${wind_speed} MPH`;
+        const renderedHumidity = `Humidity: ${humidity} % `;
+
+        if (3 > i) {
+            return "";
+        }
+    
+        return (`
+            <div class="forecast-data-card">
+                <h3>${formattedDate}</h3>
+                <h3>${renderedWindsSpeed}</h3>
+                <h3>${renderedTemperature}</h3>
+                <h3>${renderedHumidity}</h3>
+            </div>
+        `)
+    });
+
+    $('#forecast-data').empty().html(renderedForecastData)
+};
+
+
 const searchButton = $('#forecast-search-button');
+
 searchButton.on('click', () => {
   const searchInputValue = $('#search-input').val() || '';
   searchForLocation(searchInputValue);

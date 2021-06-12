@@ -38,3 +38,24 @@
 .extreme {
     background: purple;
 }
+
+.forecast-data-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.forecast-data-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(
+        to bottom right, rgb(54, 54, 185), 
+        rgb(39, 39, 121)
+    );
+    color: whitesmoke;
+    margin-top: 5px;
+    border: black solid 2px;
+}
