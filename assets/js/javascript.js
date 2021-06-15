@@ -99,7 +99,7 @@ const render5DayForecast = (oneCallData) => {
         const renderedWindsSpeed = `Wind: ${wind_speed} MPH`;
         const renderedHumidity = `Humidity: ${humidity} % `;
 
-        if (3 > i) {
+        if (i > 5 || i === 0) {
             return "";
         }
     
@@ -116,10 +116,42 @@ const render5DayForecast = (oneCallData) => {
     $('#forecast-data').empty().html(renderedForecastData)
 };
 
+const localStorageUtility = (action, value) => {
+  if (action === 'set') {
+    const searches = JSON.parse(localStorage.getItem('searches') ?? "[]");
+    searches.push(value);
+    localStorage.setItem('searches', JSON.stringify(searches));
+  } else if (action === 'get') {
+    return JSON.parse(localStorage.getItem('searches') ?? "[]");
+  }
+};
+
+const renderSavedSearches = async () => {
+  const searches = localStorageUtility('get');
+  const renderedSearches = searches.map((search, i) => {
+    const trimmedSearch = search.replace(/ /g, "-");
+    return (`
+      <button id="${trimmedSearch + i}">${search}</button>
+    `);
+  });
+  $("#recent-city").empty().html(renderedSearches);
+
+  searches.map((search, i) => {
+    const trimmedSearch = search.replace(/ /g, "-");
+    $(`#${trimmedSearch}${i}`).click(() => {
+      searchForLocation(search);
+      $("#search-input").val(search);
+    });
+  });
+};
 
 const searchButton = $('#forecast-search-button');
 
 searchButton.on('click', () => {
   const searchInputValue = $('#search-input').val() || '';
-  searchForLocation(searchInputValue);
+  if (searchInputValue !== "") {
+    searchForLocation(searchInputValue);
+    localStorageUtility('set', searchInputValue);
+    renderSavedSearches();
+  }
 });
